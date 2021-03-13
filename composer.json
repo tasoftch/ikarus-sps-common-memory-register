@@ -1,0 +1,24 @@
+{
+  "name": "ikarus/sps-common-memory-register",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Thomas Abplanalp",
+      "email": "info@tasoft.ch"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Ikarus\\SPS\\Register\\" : "src"
+    }
+  },
+  "require" : {
+    "php": ">=7.2",
+    "ikarus/sps": "^0.8",
+    "tasoft/php-pdo": "^0",
+    "tasoft/process": "^1.0",
+    "ext-pcntl": "*",
+    "ext-posix": "*",
+    "ext-sockets": "*"
+  }
+}
