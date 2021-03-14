@@ -221,7 +221,7 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 			$level
 		];
 
-		$aid = $this->sendCommand("alrt " . serialize($info)) * 1; // TODO: implement server alert identification
+		$aid = $this->sendCommand("alrt " . serialize($info)) * 1;
 		if(0 == $alert->getID())
 			$alert->setID( $aid );
 
