@@ -39,6 +39,7 @@ use Ikarus\SPS\Alert\AlertInterface;
 use Ikarus\SPS\Alert\CriticalAlert;
 use Ikarus\SPS\Alert\NoticeAlert;
 use Ikarus\SPS\Alert\WarningAlert;
+use Ikarus\SPS\Exception\EngineControlException;
 use Ikarus\SPS\Plugin\PluginInterface;
 
 abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInterface, WorkflowDependentMemoryRegister
@@ -240,6 +241,11 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 * Checks, if there are acknowledged alerts on the common register, which affect the detached plugin.
 	 */
 	public function beginCycle() {
+		if(IKARUS_MAIN_PROCESS) {
+			if($stop = $this->sendCommand('stopped')) {
+				throw (new EngineControlException($stop[1], $stop[0]))->setControl( EngineControlException::CONTROL_STOP_ENGINE );
+			}
+		}
 		if($this->alerts) {
 			if($recovered = $this->sendCommand("ialrtq " . serialize([]))) {
 				/** @var AlertInterface $alert */

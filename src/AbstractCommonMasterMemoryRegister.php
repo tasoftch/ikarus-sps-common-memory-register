@@ -99,7 +99,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 		parent::setup();
 		if($this->isMaster()) {
 			$cmd = sprintf("php %s %s ",
-				escapeshellarg( dirname(__DIR__) . "/bin/common-server.php"),
+				escapeshellarg( dirname(__DIR__) . "/bin/ikarus-cmr-server.phar"),
 				$type = $this->connectionType()
 			);
 
