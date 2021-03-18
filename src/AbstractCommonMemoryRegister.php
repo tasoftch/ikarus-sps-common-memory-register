@@ -93,15 +93,23 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 */
 	protected function sendCommand($command) {
 		if(NULL === $this->socket) {
-			$this->socket = $this->connectSocket();
+			$this->connectSocket();
 			if(!is_resource( $this->socket ))
 				$this->socket = false;
 		}
 		if($this->socket) {
-			while ($len = socket_write($this->socket, $command, static::SOCKET_BUFFER_SIZE)) {
-				if($len < ($strlen = min(static::SOCKET_BUFFER_SIZE, strlen($command))))
-					$command = substr($command, $strlen);
+			socket_clear_error($this->socket);
+			while ($len = @socket_write($this->socket, $command, static::SOCKET_BUFFER_SIZE)) {
+				if($len == ($strlen = min(static::SOCKET_BUFFER_SIZE, strlen($command))))
+					break;
+
+				$command = substr($command, $strlen);
 			}
+			if($e = socket_last_error($this->socket)) {
+				error_clear_last();
+				throw new \RuntimeException("Memory register server has gone. " . socket_strerror($e));
+			}
+
 			$response = "";
 			while ($out = socket_read($this->socket, static::SOCKET_BUFFER_SIZE)) {
 				$response.=$out;
@@ -241,8 +249,8 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 * Checks, if there are acknowledged alerts on the common register, which affect the detached plugin.
 	 */
 	public function beginCycle() {
-		if(IKARUS_MAIN_PROCESS) {
-			if($stop = $this->sendCommand('stopped')) {
+		if($GLOBALS['IKARUS_MAIN_PROCESS']) {
+			if($stop = $this->sendCommand('stopped ' . serialize([]))) {
 				throw (new EngineControlException($stop[1], $stop[0]))->setControl( EngineControlException::CONTROL_STOP_ENGINE );
 			}
 		}
