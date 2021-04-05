@@ -314,6 +314,7 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 */
 	public function endCycle()
 	{
+		$this->sendCommand("endcycle ".serialize([]));
 	}
 
 	/**
