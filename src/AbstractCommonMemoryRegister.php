@@ -39,10 +39,12 @@ use Ikarus\SPS\Alert\AlertInterface;
 use Ikarus\SPS\Alert\CriticalAlert;
 use Ikarus\SPS\Alert\NoticeAlert;
 use Ikarus\SPS\Alert\WarningAlert;
+use Ikarus\SPS\EngineDependencyInterface;
+use Ikarus\SPS\EngineInterface;
 use Ikarus\SPS\Exception\EngineControlException;
 use Ikarus\SPS\Plugin\PluginInterface;
 
-abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInterface, WorkflowDependentMemoryRegister
+abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInterface, WorkflowDependentMemoryRegister, EngineDependencyInterface
 {
 	const SOCKET_BUFFER_SIZE = 8192;
 
@@ -54,6 +56,15 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	protected $alerts = [];
 
 	private $pendentAlertCount = 0;
+
+	/** @var EngineInterface */
+	private $engine ;
+
+	public function setEngine(?EngineInterface $engine)
+	{
+		$this->engine = $engine;
+	}
+
 
 	/**
 	 * AbstractCommonMemoryRegister constructor.
@@ -169,9 +180,9 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	/**
 	 * @inheritDoc
 	 */
-	public function putValue($value, $key, $domain)
+	public function putValue($value, $key, $domain, bool $merge = false)
 	{
-		return $this->sendCommand("putv " . serialize([$value, $key, $domain])) ? true : false;
+		return $this->sendCommand("putv " . serialize([$value, $key, $domain, $merge])) ? true : false;
 	}
 
 	/**
@@ -225,7 +236,7 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 			$alert->getCode(),
 			$alert->getMessage(),
 			$alert->getTimeStamp(),
-			$pl instanceof PluginInterface ? $pl->getIdentifier() : "",
+			$pl instanceof PluginInterface ? $pl->getIdentifier() : $pl,
 			$level
 		];
 
@@ -234,6 +245,14 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 			$alert->setID( $aid );
 
 		$this->alerts[ $alert->getID() ] = $alert;
+		$this->engine->getAlertManager()->dispatchAlert(
+			$alert->getID(),
+			$alert->getCode(),
+			$alert->getLevel(),
+			$alert->getMessage(),
+			$alert->getAffectedPlugin() instanceof PluginInterface ? $alert->getAffectedPlugin()->getIdentifier() : $alert->getAffectedPlugin(),
+			$alert->getTimeStamp()
+		);
 	}
 
 	/**

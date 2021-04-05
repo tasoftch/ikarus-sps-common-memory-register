@@ -44,14 +44,15 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	const SERVER_TYPE_TCP = 'inet';
 
 	/** @var bool */
-	private $master;
+	private $master, $ws;
 	/** @var BackgroundProcess|null */
 	private $process;
 
-	public function __construct(string $identifier, bool $master)
+	public function __construct(string $identifier, bool $master, bool $useWS = false)
 	{
 		parent::__construct($identifier);
 		$this->master = $master;
+		$this->ws = $useWS;
 	}
 
 	/**
@@ -80,7 +81,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	 * @return array|null
 	 */
 	protected function getAdditionalServerArguments(): ?array {
-		return NULL;
+		return $this->ws ? ['--web-socket'] : NULL;
 	}
 
 	/**
@@ -98,11 +99,11 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	{
 		parent::setup();
 		if($this->isMaster()) {
-			$cwd = getcwd();
-			if(is_file($sf = "$cwd/server.phar"))
-				unlink($sf);
+			$sf = getcwd()."/server.phar";
 
-			copy(dirname(__DIR__) . "/bin/ikarus-cmr-server.phar", $sf);
+			if(!is_file($sf)) {
+				copy(dirname(__DIR__) . "/bin/ikarus-cmr-server.phar", $sf);
+			}
 
 			$cmd = sprintf("php %s %s ",
 				escapeshellarg( $sf ),
@@ -126,6 +127,11 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 					$cmd .= escapeshellarg($arg) . " ";
 			}
 
+			$r = shell_exec("ps -ax|grep " . escapeshellarg($sf));
+			if(preg_match("/^\s*(\d+).+?(?:unix|tcp)/im", $r, $ms)) {
+				echo $ms[1];
+			}
+
 			$this->process = new BackgroundProcess(trim($cmd));
 			$this->process->run();
 
@@ -135,7 +141,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 				for($e=0;$e<1000;$e++) {
 					if(file_exists($addr))
 						break;
-					usleep(100);
+					usleep(1000);
 				}
 			}
 		}
