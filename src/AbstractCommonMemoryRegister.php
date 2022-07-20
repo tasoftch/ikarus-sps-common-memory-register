@@ -166,7 +166,7 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 */
 	public function getCommand(string $command)
 	{
-		return unserialize( $this->sendCommand("getc " . serialize([$command])) );
+		return $this->sendCommand("getc " . serialize([$command]));
 	}
 
 	/**

@@ -82,7 +82,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	 */
 	protected function getAdditionalServerArguments(): ?array {
 		if(IKARUS_VISUAL_CONN_MODE == 'ws' && IKARUS_VISUAL_INTERFACE)
-			return $this->ws ? ['--hook-server', IKARUS_VISUAL_INTERFACE] : NULL;
+			return ['--hook-server', escapeshellarg( IKARUS_VISUAL_INTERFACE )];
 		return NULL;
 	}
 
@@ -101,51 +101,8 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	{
 		parent::setup();
 		if($this->isMaster()) {
-			$sf = getcwd()."/server.phar";
-
-			if(!is_file($sf)) {
-				copy(dirname(__DIR__) . "/bin/ikarus-cmr-server.phar", $sf);
-			}
-
-			$cmd = sprintf("php %s %s ",
-				escapeshellarg( $sf ),
-				$type = $this->connectionType()
-			);
-
-			switch ($type) {
-				case static::SERVER_TYPE_UNIX:
-					$cmd .= $addr = escapeshellarg($this->connectionAddress());
-					break;
-				case static::SERVER_TYPE_TCP:
-					$cmd .= escapeshellarg($this->connectionAddress()) . " ";
-					$cmd .= escapeshellarg($this->connectionPort());
-					break;
-				default:
-					throw new CommonMemoryRegisterException("Unknown server type $type", 870);
-			}
-
-			if($args = $this->getAdditionalServerArguments()) {
-				foreach ($args as $arg)
-					$cmd .= escapeshellarg($arg) . " ";
-			}
-
-			$r = shell_exec("ps -ax|grep " . escapeshellarg($sf));
-			if(preg_match("/^\s*(\d+).+?(?:unix|tcp)/im", $r, $ms)) {
-				echo $ms[1];
-			}
-
-			$this->process = new BackgroundProcess(trim($cmd));
+			$this->process = new BackgroundProcess("ikarus-sps mreg:default");
 			$this->process->run();
-
-			if($type == static::SERVER_TYPE_UNIX) {
-				// Workaround to wait until the server is setup.
-
-				for($e=0;$e<1000;$e++) {
-					if(file_exists($addr))
-						break;
-					usleep(1000);
-				}
-			}
 		}
 	}
 

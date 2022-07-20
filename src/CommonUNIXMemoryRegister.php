@@ -98,8 +98,11 @@ class CommonUNIXMemoryRegister extends AbstractCommonMasterMemoryRegister
 		$this->socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 		if(!$this->socket)
 			throw (new SocketConnectionException("Can not create socket of type AF_UNIX", 889));
-		if(!@socket_connect($this->socket, $this->getUnixSocketName())) {
-			throw (new SocketConnectionException("Can not connect to %s", 890, NULL, $this->getUnixSocketName()))->setSocket($this->socket);
+
+		if(!@socket_connect($this->socket, $n = $this->getUnixSocketName())) {
+			$e = socket_last_error();
+			$str = socket_strerror($e);
+			throw (new SocketConnectionException("Can not connect to %s => ($e): $str", 890, NULL, $this->getUnixSocketName()))->setSocket($this->socket);
 		}
 	}
 
