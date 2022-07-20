@@ -204,9 +204,9 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	/**
 	 * @inheritDoc
 	 */
-	public function setStatus(int $status, string $pluginID)
+	public function setStatus(int $status, string $pluginID, bool $merge = true)
 	{
-		return $this->sendCommand("puts " . serialize([$status, $pluginID])) ? true : false;
+		return $this->sendCommand("puts " . serialize([$status, $pluginID, $merge])) ? true : false;
 	}
 
 	/**

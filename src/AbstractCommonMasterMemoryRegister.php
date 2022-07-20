@@ -81,7 +81,9 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	 * @return array|null
 	 */
 	protected function getAdditionalServerArguments(): ?array {
-		return $this->ws ? ['--web-socket'] : NULL;
+		if(IKARUS_VISUAL_CONN_MODE == 'ws' && IKARUS_VISUAL_INTERFACE)
+			return $this->ws ? ['--hook-server', IKARUS_VISUAL_INTERFACE] : NULL;
+		return NULL;
 	}
 
 	/**
