@@ -217,7 +217,13 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 		return $this->sendCommand("gets " . serialize([$pluginID])) * 1;
 	}
 
-	/**
+    public function putPanel(array $panel, string $pluginID)
+    {
+        $this->sendCommand("putp " . serialize([$panel, $pluginID]));
+    }
+
+
+    /**
 	 * @inheritDoc
 	 */
 	public function triggerAlert(AlertInterface $alert)
@@ -268,7 +274,7 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
 	 * Checks, if there are acknowledged alerts on the common register, which affect the detached plugin.
 	 */
 	public function beginCycle() {
-		if($GLOBALS['IKARUS_MAIN_PROCESS']) {
+		if($GLOBALS['IKARUS_MAIN_PROCESS'] ?? false) {
 			if($stop = $this->sendCommand('stopped ' . serialize([]))) {
 				throw (new EngineControlException($stop[1], $stop[0]))->setControl( EngineControlException::CONTROL_STOP_ENGINE );
 			}

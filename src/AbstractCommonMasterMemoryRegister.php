@@ -103,6 +103,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 		if($this->isMaster()) {
 			$this->process = new BackgroundProcess("ikarus-sps mreg:default");
 			$this->process->run();
+			usleep(1000000);
 		}
 	}
 
