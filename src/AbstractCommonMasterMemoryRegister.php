@@ -81,7 +81,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	 * @return array|null
 	 */
 	protected function getAdditionalServerArguments(): ?array {
-		if(IKARUS_VISUAL_CONN_MODE == 'ws' && IKARUS_VISUAL_INTERFACE)
+		if($this->ws)
 			return ['--hook-server', escapeshellarg( IKARUS_VISUAL_INTERFACE )];
 		return NULL;
 	}
@@ -103,7 +103,7 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 		if($this->isMaster()) {
 			$this->process = new BackgroundProcess("ikarus-sps mreg:default");
 			$this->process->run();
-			usleep(1000000);
+			usleep(5e5);
 		}
 	}
 

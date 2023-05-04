@@ -222,8 +222,13 @@ abstract class AbstractCommonMemoryRegister implements CommonMemoryRegisterInter
         $this->sendCommand("putp " . serialize([$panel, $pluginID]));
     }
 
+	public function registerBrick(string $brick, string $domain)
+	{
+		$this->sendCommand("rbrick " . serialize([$brick, $domain]));
+	}
 
-    /**
+
+	/**
 	 * @inheritDoc
 	 */
 	public function triggerAlert(AlertInterface $alert)

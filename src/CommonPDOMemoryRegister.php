@@ -159,14 +159,18 @@ class CommonPDOMemoryRegister implements CommonMemoryRegisterInterface, Workflow
 	/**
 	 * @inheritDoc
 	 */
-	public function putValue($value, string $key, string $domain)
+	public function putValue($value, string $key, string $domain, bool $merged = false)
 	{
 		$value = $this->getPDO()->quote( serialize($value) );
 		$key = $this->getPDO()->quote($key);
 		$domain = $this->getPDO()->quote($domain);
 
-		$this->getPDO()->exec("DELETE FROM VALUE_REGISTER WHERE reg_key = $key AND reg_domain = $domain;
+		if($merged) {
+			$this->getPDO()->exec("INSERT INTO VALUE_REGISTER (reg_key, reg_domain, reg_data) VALUES ($key, $domain, $value)");
+		} else {
+			$this->getPDO()->exec("DELETE FROM VALUE_REGISTER WHERE reg_key = $key AND reg_domain = $domain;
 INSERT INTO VALUE_REGISTER (reg_key, reg_domain, reg_data) VALUES ($key, $domain, $value)");
+		}
 	}
 
 	/**
@@ -199,7 +203,7 @@ INSERT INTO VALUE_REGISTER (reg_key, reg_domain, reg_data) VALUES ($key, $domain
 	/**
 	 * @inheritDoc
 	 */
-	public function setStatus(int $status, string $pluginID)
+	public function setStatus(int $status, string $pluginID, bool $merge = true)
 	{
 		$pluginID = $this->getPDO()->quote($pluginID);
 		$this->getPDO()->exec("DELETE FROM STATUS_REGISTER WHERE reg_brick = $pluginID; INSERT INTO STATUS_REGISTER (reg_brick, reg_status) VALUES ($pluginID, $status)");
@@ -287,5 +291,15 @@ INSERT INTO VALUE_REGISTER (reg_key, reg_domain, reg_data) VALUES ($key, $domain
 	public function getIdentifier(): string
 	{
 		return $this->identifier;
+	}
+
+	public function putPanel(array $panel, string $pluginID)
+	{
+		// TODO: Implement putPanel() method.
+	}
+
+	public function registerBrick(string $brick, string $domain)
+	{
+		// TODO: Implement registerBrick() method.
 	}
 }
