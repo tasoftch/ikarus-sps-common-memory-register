@@ -44,15 +44,15 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	const SERVER_TYPE_TCP = 'inet';
 
 	/** @var bool */
-	private $master, $ws;
+	private $master, $isMain;
 	/** @var BackgroundProcess|null */
 	private $process;
 
-	public function __construct(string $identifier, bool $master, bool $useWS = false)
+	public function __construct(string $identifier, bool $master, bool $isMainSPS = true)
 	{
 		parent::__construct($identifier);
 		$this->master = $master;
-		$this->ws = $useWS;
+		$this->isMain = $isMainSPS;
 	}
 
 	/**
@@ -76,17 +76,6 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	abstract protected function connectionPort(): int;
 
 	/**
-	 * Pass more arguments to the server process
-	 *
-	 * @return array|null
-	 */
-	protected function getAdditionalServerArguments(): ?array {
-		if($this->ws)
-			return ['--hook-server', escapeshellarg( IKARUS_VISUAL_INTERFACE )];
-		return NULL;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isMaster(): bool
@@ -105,6 +94,17 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 			$this->process->run();
 			usleep(5e5);
 		}
+	}
+
+	/**
+	 * If this instance of Ikarus SPS is not the main SPS, it should not update the memory register.
+	 *
+	 * @return void
+	 */
+	public function endCycle()
+	{
+		if($this->isMain)
+			parent::endCycle();
 	}
 
 	/**
