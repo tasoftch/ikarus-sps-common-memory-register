@@ -48,6 +48,11 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	/** @var BackgroundProcess|null */
 	private $process;
 
+	/**
+	 * @param string $identifier
+	 * @param bool $master
+	 * @param bool $isMainSPS Updates remote memory register server after each cycle.
+	 */
 	public function __construct(string $identifier, bool $master, bool $isMainSPS = true)
 	{
 		parent::__construct($identifier);
