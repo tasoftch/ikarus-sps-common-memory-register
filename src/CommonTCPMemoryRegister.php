@@ -49,11 +49,10 @@ class CommonTCPMemoryRegister extends AbstractCommonMasterMemoryRegister
 	 * @param string $address
 	 * @param int $port
 	 * @param bool $master
-	 * @param bool $isMainSPS
 	 */
-	public function __construct(string $identifier, string $address, int $port, bool $master, bool $isMainSPS)
+	public function __construct(string $identifier, string $address, int $port, bool $master)
 	{
-		parent::__construct($identifier, $master, $isMainSPS);
+		parent::__construct($identifier, $master);
 		$this->address = $address;
 		$this->port = $port;
 	}

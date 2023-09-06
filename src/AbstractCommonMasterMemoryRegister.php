@@ -44,20 +44,18 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	const SERVER_TYPE_TCP = 'inet';
 
 	/** @var bool */
-	private $master, $isMain;
+	private $master;
 	/** @var BackgroundProcess|null */
 	private $process;
 
 	/**
 	 * @param string $identifier
 	 * @param bool $master
-	 * @param bool $isMainSPS Updates remote memory register server after each cycle.
 	 */
-	public function __construct(string $identifier, bool $master, bool $isMainSPS = true)
+	public function __construct(string $identifier, bool $master)
 	{
 		parent::__construct($identifier);
 		$this->master = $master;
-		$this->isMain = $isMainSPS;
 	}
 
 	/**
@@ -102,13 +100,13 @@ abstract class AbstractCommonMasterMemoryRegister extends AbstractCommonMemoryRe
 	}
 
 	/**
-	 * If this instance of Ikarus SPS is not the main SPS, it should not update the memory register.
+	 * If this instance of Ikarus SPS is not the master SPS, it should not update the memory register.
 	 *
 	 * @return void
 	 */
 	public function endCycle()
 	{
-		if($this->isMain)
+		if($this->isMaster())
 			parent::endCycle();
 	}
 

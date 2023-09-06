@@ -48,9 +48,9 @@ class CommonUNIXMemoryRegister extends AbstractCommonMasterMemoryRegister
 	 * @param bool $master
 	 * @param bool $isMainSPS
 	 */
-	public function __construct($identifier, string $unixName, bool $master, bool $isMainSPS)
+	public function __construct($identifier, string $unixName, bool $master)
 	{
-		parent::__construct($identifier, $master, $isMainSPS);
+		parent::__construct($identifier, $master);
 		$this->unixSocketName = $unixName;
 	}
 
